@@ -73,7 +73,7 @@ def search(search_word):
                 path.append(search_results_path)
                 link = ttk.Label(result_window, text=search_results_path, cursor="hand1")
                 link.pack()
-                link.bind("<Button-1>", lambda e, p=search_results_path: subprocess.Popen(["explorer", p], shell=True))
+                link.bind("<Button-1>", lambda p=search_results_path: subprocess.Popen(["explorer", p], shell=True))
 
         # 検索完了後にメッセージボックスを閉じる
         search_window.destroy()
@@ -130,7 +130,7 @@ def create_result_window():
 
 def create_search_frame(main_window):
     search_frame = ttk.Frame(main_window, padding=10)
-    search_frame.grid(row=0, column=0, sticky=E)
+    search_frame.grid(row=0, column=0, sticky=W+E)
 
     search_word_label = ttk.Label(search_frame, text="検索ワード", padding=(5, 2))
     search_word_label.pack(side=LEFT)
@@ -146,7 +146,7 @@ def create_checkbox_frame(main_window):
     checkbox_bool_matrix=[]
 
     checkbox_tab_note = ttk.Notebook(main_window)
-    checkbox_tab_note.grid(row=1, column=0, sticky=E)
+    checkbox_tab_note.grid(row=1, column=0, sticky=W+E)
 
     if not FILE_ATTRIBUTES:
         empty_tab = ttk.Frame(checkbox_tab_note)
