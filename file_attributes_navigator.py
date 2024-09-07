@@ -1,4 +1,5 @@
 import os
+import threading
 import tkinter
 from tkinter import *
 from tkinter import ttk
@@ -27,52 +28,65 @@ SEARCH_TARGET_ATTRIBUTES_FILE = '.Attributes.txt'
 
 global checkbox_bool_matrix
 
-def search():
+def search(search_word):
     global checkbox_bool_matrix
 
     if not SEARCH_TARGET_PATHS:
-        messagebox.showerror("エラー","検索対象が指定されていません。")
+        messagebox.showerror("エラー", "検索対象が指定されていません。")
         return
 
-    search_attribute_matrix = []
+    # 検索中のメッセージボックスを表示
+    search_window = tkinter.Toplevel()
+    search_window.title("検索中")
+    ttk.Label(search_window, text="検索中です...しばらくお待ちください。").pack(padx=20, pady=20)
+    search_window.geometry("300x100")
 
-    for i,checkbox_bools in enumerate(checkbox_bool_matrix):
-        search_attribute_matrix.append(list())
-        
-        attributes = FILE_ATTRIBUTES.splitlines()[i].split(',')
+    def perform_search():
+        search_attribute_matrix = []
 
-        if attributes[1] != "true":
-            continue
+        for i, checkbox_bools in enumerate(checkbox_bool_matrix):
+            search_attribute_matrix.append(list())
 
-        for j,checkbox_bool in enumerate(checkbox_bools):
-            if checkbox_bool.get():
-                search_attribute_matrix[i].append(attributes[j+2])
+            attributes = FILE_ATTRIBUTES.splitlines()[i].split(',')
 
-    search_results_path_matrix = []
+            if attributes[1] != "true":
+                continue
 
-    for search_target_path in SEARCH_TARGET_PATHS.splitlines():
-        if os.path.isdir(search_target_path):
-            search_results_paths = []
-            search_results_path_matrix.append(search_file(search_target_path, search_attribute_matrix, search_results_paths))
-        else:
-            messagebox.showerror("エラー","検索対象が存在しません。")
+            for j, checkbox_bool in enumerate(checkbox_bools):
+                if checkbox_bool.get():
+                    search_attribute_matrix[i].append(attributes[j+2])
 
-    result_window = create_result_window()
-    path = []
+        search_results_path_matrix = []
 
-    for search_results_paths in search_results_path_matrix:
-        for search_results_path in search_results_paths:
-            path.append(search_results_path)
-            link=ttk.Label(result_window,text = search_results_path ,cursor="hand1")
-            link.pack()
-            link.bind("<Button-1>",lambda e, p=search_results_path:subprocess.Popen(["explorer", p], shell=True))
+        for search_target_path in SEARCH_TARGET_PATHS.splitlines():
+            if os.path.isdir(search_target_path):
+                search_results_paths = []
+                search_results_path_matrix.append(search_file(search_target_path, search_attribute_matrix, search_results_paths, search_word))
+            else:
+                messagebox.showerror("エラー", "検索対象が存在しません。")
 
-def search_file(search_path, search_attribute_matrix, search_results_paths):
+        result_window = create_result_window()
+        path = []
+
+        for search_results_paths in search_results_path_matrix:
+            for search_results_path in search_results_paths:
+                path.append(search_results_path)
+                link = ttk.Label(result_window, text=search_results_path, cursor="hand1")
+                link.pack()
+                link.bind("<Button-1>", lambda e, p=search_results_path: subprocess.Popen(["explorer", p], shell=True))
+
+        # 検索完了後にメッセージボックスを閉じる
+        search_window.destroy()
+
+    # 検索を別スレッドで実行
+    threading.Thread(target=perform_search).start()
+
+def search_file(search_path, search_attribute_matrix, search_results_paths, search_word):
     search_results_paths = search_results_paths
 
     for entry in os.listdir(search_path):
         if (os.path.isdir(os.path.join(search_path, entry))):
-            search_file(os.path.join(search_path, entry),search_attribute_matrix, search_results_paths)
+            search_file(os.path.join(search_path, entry),search_attribute_matrix, search_results_paths, search_word)
 
         if os.path.join(search_path, entry)==(os.path.join(search_path,SEARCH_TARGET_ATTRIBUTES_FILE)):
 
@@ -97,7 +111,10 @@ def search_file(search_path, search_attribute_matrix, search_results_paths):
                         break 
             
             if is_matched:
-                search_results_paths.append(search_path)
+                if not search_word:
+                    search_results_paths.append(search_path)
+                elif search_word in os.path.basename(search_path):
+                   search_results_paths.append(search_path)
 
     return search_results_paths
 
@@ -121,10 +138,10 @@ def create_search_frame(main_window):
     search_word_entry = ttk.Entry(search_frame, textvariable=StringVar(), width=30)
     search_word_entry.pack(side=LEFT)
 
-    search_button = ttk.Button(search_frame, text="検索", command=search)
+    search_button = ttk.Button(search_frame, text="検索", command=lambda:search(search_word_entry.get()))
     search_button.pack(side=LEFT)
 
-def create_checkbox_frame(main_window, options):
+def create_checkbox_frame(main_window):
     global checkbox_bool_matrix
     checkbox_bool_matrix=[]
 
@@ -184,7 +201,7 @@ def create_checkbox_frame(main_window, options):
 
 def create_frames(main_window):
     create_search_frame(main_window)
-    create_checkbox_frame(main_window, "a")
+    create_checkbox_frame(main_window)
 
 def main():
     main_window = create_main_window()
