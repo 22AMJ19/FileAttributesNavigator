@@ -30,6 +30,23 @@ def load_file_attributes():
     file_attributes = file_attributes_handle.read()
     file_attributes_handle.close()
 
+def create_attributes_file(reference_path):
+    global file_attributes
+    if not reference_path:
+        return
+    output_file = ""
+    for file_attributes_line, should_add_attributes in zip(file_attributes.splitlines(), checkbox_bool_matrix):
+        file_attribute = file_attributes_line.split(",")
+        output_file = output_file + file_attribute[0]
+        for attribute, should_add_attribute in zip(file_attribute[2:],should_add_attributes):
+            if should_add_attribute.get():
+                output_file = output_file + "," + attribute
+        output_file = output_file + "\n"
+    
+    file_creation_handle = open(os.path.join(reference_path,SEARCH_TARGET_ATTRIBUTES_FILE), 'w')
+    file_creation_handle.write(output_file)
+    file_creation_handle.close()
+
 def update_attributes(attribute_title, attribute,main_window):
     global file_attributes
     if not attribute:
@@ -58,6 +75,8 @@ def update_file_attributes(attribute_data_list,main_window):
     update_checkbox_frame(main_window)
 
 def update_checkbox_frame(main_window):
+    if not main_window:
+        return
     load_file_attributes()
 
     for widget in main_window.winfo_children():
@@ -98,12 +117,12 @@ def update_tab_visibility_settings(attribute_identifier,is_tab_visible):
             attributes = file_attribute.split(",")
             file_attribute = ""
 
-            if is_tab_visible:
+            if is_tab_visible.get():
                 attributes[1] = "true"
             else:
                 attributes[1] = "false"
             
-            sorted_attributes = attributes[2:].sort()
+            sorted_attributes = sorted(attributes[2:])
 
             file_attribute = attribute_identifier + "," + attributes[1]
 
@@ -112,7 +131,7 @@ def update_tab_visibility_settings(attribute_identifier,is_tab_visible):
             
         attribute_data_list.append(file_attribute)
         
-    update_file_attributes (attribute_data_list)
+    update_file_attributes (attribute_data_list, None)
 
 def create_main_window():
     main_window = tkinter.Tk()
@@ -135,7 +154,7 @@ def create_attribute_file_frame(main_window):
     reference_button = ttk.Button(attribute_file_frame, text="参照", command=browse_directory_dialog)
     reference_button.grid(row=0, column=2, sticky=W+E)
 
-    create_attributes_file_button = ttk.Button(attribute_file_frame, text="属性ファイル追加", command=print)
+    create_attributes_file_button = ttk.Button(attribute_file_frame, text="属性ファイル追加", command=lambda:create_attributes_file(reference_entry.get()))
     create_attributes_file_button.grid(row=0, column=3, sticky=W+E)
 
 def create_attribute_identifier_frame(main_window):
@@ -208,7 +227,7 @@ def create_checkbox_frame(main_window):
         show_attribute_identifier_tab_checkbox = ttk.Checkbutton(
             scrollable_frame, padding=(10), text="検索時のタブ表示",
             variable=attribute_identifier_tab_visible_vars[i],
-            command=lambda:update_tab_visibility_settings(attribute_title,attribute_identifier_tab_visible_vars[i]) 
+            command=lambda title=attribute_title, is_tab_visible = attribute_identifier_tab_visible_vars[i]:update_tab_visibility_settings(title,is_tab_visible) 
             )
         show_attribute_identifier_tab_checkbox.grid(row=0, column=0, sticky=W+E)
 
