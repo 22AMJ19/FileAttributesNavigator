@@ -95,6 +95,7 @@ def search_file(search_path, search_attribute_matrix, search_results_paths, sear
             file_handle.close()
 
             is_matched = True
+            is_included = False
 
             for search_attributes,target_attributes in zip(search_attribute_matrix, search_target_attributes.splitlines()):
 
@@ -102,6 +103,8 @@ def search_file(search_path, search_attribute_matrix, search_results_paths, sear
                 target_attribute = target_attribute[1:]
 
                 for search_attribute in search_attributes:
+                    if search_word in search_attribute:
+                        is_included = True
                     if search_attribute in target_attribute:
                         if (is_matched):
                             is_matched = True
@@ -113,7 +116,7 @@ def search_file(search_path, search_attribute_matrix, search_results_paths, sear
             if is_matched:
                 if not search_word:
                     search_results_paths.append(search_path)
-                elif search_word in os.path.basename(search_path):
+                elif search_word in os.path.basename(search_path) or is_included:
                    search_results_paths.append(search_path)
 
     return search_results_paths

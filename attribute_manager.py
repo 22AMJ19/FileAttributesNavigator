@@ -7,13 +7,13 @@ from tkinter import filedialog
 
 FILE_ATTRIBUTES_PATH = 'FileAttributes.txt'
 if not os.path.isfile(FILE_ATTRIBUTES_PATH):
-    file_creation_handle = open(FILE_ATTRIBUTES_PATH, 'w')
+    file_creation_handle = open(FILE_ATTRIBUTES_PATH, 'w', encoding='UTF-8')
     file_creation_handle.write('')
     file_creation_handle.close()
 
 SEARCH_FILE_PATH = "SearchFilePath.txt"
 if not os.path.isfile(SEARCH_FILE_PATH):
-    file_creation_handle = open(SEARCH_FILE_PATH, 'w')
+    file_creation_handle = open(SEARCH_FILE_PATH, 'w', encoding='UTF-8')
     file_creation_handle.write('')
     file_creation_handle.close()
 file_handle = open(SEARCH_FILE_PATH, 'r', encoding='UTF-8')
@@ -43,7 +43,7 @@ def create_attributes_file(reference_path):
                 output_file = output_file + "," + attribute
         output_file = output_file + "\n"
     
-    file_creation_handle = open(os.path.join(reference_path,SEARCH_TARGET_ATTRIBUTES_FILE), 'w')
+    file_creation_handle = open(os.path.join(reference_path,SEARCH_TARGET_ATTRIBUTES_FILE), 'w', encoding='UTF-8')
     file_creation_handle.write(output_file)
     file_creation_handle.close()
 
