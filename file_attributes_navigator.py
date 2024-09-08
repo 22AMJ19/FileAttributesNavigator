@@ -49,8 +49,8 @@ def search(search_word):
 
             attributes = FILE_ATTRIBUTES.splitlines()[i].split(',')
 
-            if attributes[1] != "true":
-                continue
+            # if attributes[1] != "true":
+            #     continue
 
             for j, checkbox_bool in enumerate(checkbox_bools):
                 if checkbox_bool.get():
@@ -102,9 +102,10 @@ def search_file(search_path, search_attribute_matrix, search_results_paths, sear
                 target_attribute = target_attributes.split(",")
                 target_attribute = target_attribute[1:]
 
+                if search_word in target_attribute:
+                    is_included = True
+
                 for search_attribute in search_attributes:
-                    if search_word in search_attribute:
-                        is_included = True
                     if search_attribute in target_attribute:
                         if (is_matched):
                             is_matched = True
