@@ -1,4 +1,5 @@
 import os
+import re
 import tkinter
 from tkinter import *
 from tkinter import ttk
@@ -154,7 +155,7 @@ def create_attribute_file_frame(main_window):
     reference_button = ttk.Button(attribute_file_frame, text="参照", command=browse_directory_dialog)
     reference_button.grid(row=0, column=2, sticky=W+E)
 
-    create_attributes_file_button = ttk.Button(attribute_file_frame, text="属性ファイル追加", command=lambda:create_attributes_file(reference_entry.get()))
+    create_attributes_file_button = ttk.Button(attribute_file_frame, text="属性ファイル追加", command=lambda:create_attributes_file(re.sub(r'[\s\u3000]', '', reference_entry.get())))
     create_attributes_file_button.grid(row=0, column=3, sticky=W+E)
 
 def create_attribute_identifier_frame(main_window):
@@ -176,7 +177,7 @@ def create_attribute_identifier_frame(main_window):
     show_attribute_identifier_tab_checkbox.grid(row=0, column=2, sticky=W+E)
     
     create_attributes_file_button = ttk.Button(attribute_identifier_frame, text="属性タブ追加", 
-        command=lambda: add_attribute_tab(attribute_identifier_entry.get(),attribute_identifier_tab_visible_var.get(),main_window))
+        command=lambda: add_attribute_tab(re.sub(r'[\s\u3000]', '', attribute_identifier_entry.get()),attribute_identifier_tab_visible_var.get(),main_window))
     create_attributes_file_button.grid(row=0, column=3, sticky=W+E)
 
 def create_checkbox_frame(main_window):
@@ -234,7 +235,7 @@ def create_checkbox_frame(main_window):
         attribute_entry = ttk.Entry(scrollable_frame, textvariable=StringVar(), width=30)
         attribute_entry.grid(row=0, column=1, sticky=W+E)
 
-        add_attribute_button = ttk.Button(scrollable_frame, text="属性追加", command=lambda title=attribute_title, entry=attribute_entry: update_attributes(title, entry.get(),main_window))
+        add_attribute_button = ttk.Button(scrollable_frame, text="属性追加", command=lambda title=attribute_title, entry=attribute_entry: update_attributes(title, re.sub(r'[\s\u3000]', '', entry.get()),main_window))
         add_attribute_button.grid(row=0, column=2, sticky=W+E)      
 
         checkbox_canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
