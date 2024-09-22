@@ -1,4 +1,5 @@
 import os
+import re
 import threading
 import tkinter
 from tkinter import *
@@ -28,6 +29,7 @@ SEARCH_TARGET_ATTRIBUTES_FILE = '.Attributes.txt'
 
 global checkbox_bool_matrix
 
+TODO:検索ワードがカンマ区切りで渡されたときの処理
 def search(search_word):
     global checkbox_bool_matrix
 
@@ -142,7 +144,7 @@ def create_search_frame(main_window):
     search_word_entry = ttk.Entry(search_frame, textvariable=StringVar(), width=30)
     search_word_entry.pack(side=LEFT)
 
-    search_button = ttk.Button(search_frame, text="検索", command=lambda:search(search_word_entry.get()))
+    search_button = ttk.Button(search_frame, text="検索", command=lambda:search(re.sub(r'[\s\u3000]', ',', search_word_entry.get()))) 
     search_button.pack(side=LEFT)
 
 def create_checkbox_frame(main_window):
